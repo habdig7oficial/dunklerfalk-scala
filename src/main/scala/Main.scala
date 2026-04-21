@@ -1,13 +1,36 @@
-import io.javalin.Javalin;
+import io.javalin.Javalin
 import java.sql.*
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CountDownLatch
+
+/* Import settings */
+
+import com.dunklerfalk.db.*
+import com.dunklerfalke.routes.*
 
 @main def server(): Unit =
   val latch = new CountDownLatch(1)
 
-  val db: Connection = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/postgres?user=postgres&password=postgres")
+  val app = Javalin.create(config => {
+    for(route <- routes){
+      route.method match
+        case Method.GET => config.routes.get(route.path, route.handler)
+    }
+  })
 
-  val app = Javalin.create(config => config.routes.get("/", ctx => {
+
+  app.start(7777)
+  Runtime.getRuntime().addShutdownHook(new Thread(() => {
+    db.close()
+    app.stop()
+    latch.countDown()
+  }))
+
+  latch.await()
+
+
+
+/*
+config.routes.get("/", ctx => {
     val query = "SELECT VERSION();"
     val pstmt = db.prepareStatement(query)
     //pstmt.setInt(1, 101) // Sets the first '?' to 101
@@ -21,12 +44,4 @@ import java.util.concurrent.CountDownLatch;
     }
     ctx.result("Scala3 > Java")
   }))
-
-  app.start(7777)
-  Runtime.getRuntime().addShutdownHook(new Thread(() => {
-    db.close()
-    app.stop()
-    latch.countDown()
-  }))
-
-  latch.await()
+ */
