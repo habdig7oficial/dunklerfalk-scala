@@ -13,7 +13,16 @@ import com.dunklerfalke.routes.*
   val app = Javalin.create(config => {
     for(route <- routes){
       route.method match
-        case Method.GET => config.routes.get(route.path, route.handler)
+        case Method.GET =>     config.routes.get(route.path, route.handler)
+        case Method.HEAD =>    config.routes.head(route.path, route.handler)
+        case Method.OPTIONS => config.routes.options(route.path, route.handler)
+        case Method.PUT =>     config.routes.put(route.path, route.handler)
+        case Method.DELETE =>  config.routes.delete(route.path, route.handler)
+        case Method.POST =>    config.routes.post(route.path, route.handler)
+        case Method.PATCH =>   config.routes.patch(route.path, route.handler)
+        // case Method.TRACE =>   config.routes.trace(route.path, route.handler)
+        // case Method.CONNECT => config.routes.apiBuilder(() => ApiBuilder.connect(route.path, route.handler))
+        case _ => println("Unknow method")
     }
   })
 
